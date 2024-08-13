@@ -12,7 +12,8 @@ function archive_images() {
         mkdir -p "$base_path"
     fi
 
-    docker images | grep -E "$filter_info" | awk '{print $1, $2, $3}' | while read -r repo tag image_id; do
+    #docker images | grep -E "$filter_info" | awk '{print $1, $2, $3}' | while read -r repo tag image_id; do
+    docker images --format "{{.Repository}} {{.Tag}} {{.ID}}" | grep -E "$filter_info" | while read -r repo tag image_id; do
         # 如果 tag 中不包含 dev- 或 prd- 则跳过
         if [[ ! "$tag" == dev-* && ! "$tag" == prd-* ]]; then
             continue
