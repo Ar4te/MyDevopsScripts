@@ -5,7 +5,7 @@ script_path="/root/release_buff_cache.sh"
 
 # 检查脚本是否存在，如果不存在则创建
 if [ ! -f "$script_path" ]; then
-    cat <<'EOF'> $script_path
+    cat <<'EOF' >$script_path
 #!/bin/bash
 #将缓冲区的数据写入磁盘（清除buff）
 sync
@@ -34,14 +34,14 @@ new_job="0 23 * * * $script_path > /dev/null 2>&1"
 temp_crontab=$(mktemp)
 
 # 将当前 crontab 导出到临时文件
-crontab -l > $temp_crontab
+crontab -l >$temp_crontab
 
 # 检查任务是否已存在
 if grep -Fxq "$new_job" $temp_crontab; then
     echo "任务已存在于 crontab 中。"
 else
     # 将新任务添加到临时文件末尾
-    echo "$new_job" >> $temp_crontab
+    echo "$new_job" >>$temp_crontab
 
     # 导入更新后的 crontab
     crontab $temp_crontab
@@ -54,3 +54,16 @@ rm -rf $temp_crontab
 
 # 显示当前 crontab 任务
 crontab -l
+
+#!/bin/bash
+
+sqlcmd -S tcp:10.10.13.11,1433 -U sa -P dz@123456 -d mesdb -h -1 \
+    -Q "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_CATALOG ='mesdb' AND TABLE_SCHEMA ='dbo' AND TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME ASC;" |
+    sed '/rows affected/d' | sed '/^$/d' |
+    while IFS= read -r line; do
+        if [[ "$line" == *"copy"* || "$line" == *"_log"* ]]; then
+            echo "$line" | tee -a ttt2
+        else
+            echo "$line" | tee -a ttt1
+        fi
+    done
