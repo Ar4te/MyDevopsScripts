@@ -1,0 +1,9 @@
+akhq:
+  server:
+    port: 8080
+
+  connections:
+    my-cluster:
+      properties:
+        bootstrap.servers: broker-1:19092,broker-2:19092,broker-3:19092
+        security.protocol: PLAINTEXT
