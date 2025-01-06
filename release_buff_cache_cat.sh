@@ -54,16 +54,3 @@ rm -rf $temp_crontab
 
 # 显示当前 crontab 任务
 crontab -l
-
-#!/bin/bash
-
-sqlcmd -S tcp:10.10.13.11,1433 -U sa -P dz@123456 -d mesdb -h -1 \
-    -Q "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_CATALOG ='mesdb' AND TABLE_SCHEMA ='dbo' AND TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME ASC;" |
-    sed '/rows affected/d' | sed '/^$/d' |
-    while IFS= read -r line; do
-        if [[ "$line" == *"copy"* || "$line" == *"_log"* ]]; then
-            echo "$line" | tee -a ttt2
-        else
-            echo "$line" | tee -a ttt1
-        fi
-    done
